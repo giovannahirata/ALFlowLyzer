@@ -401,9 +401,14 @@ class ConvFreqVowelsConsonants(Feature):
             return "not a dns flow"
         consonants = list("bcdfghjklmnpqrstvwxyz")
         vowels = list("aeiou")
-        domain_name = flow.get_domain_names()[0]
+        domain_names = flow.get_domain_names()
+        if len(domain_names) == 0 or len(domain_names[0]) < 3:
+            return 0
+        domain_name = domain_names[0]
         freq_count = 0
         total_count = len(domain_name)
+        if total_count == 0:
+            return 0
         for i in range(len(domain_name)-2):
             if (domain_name[i] in consonants) and (domain_name[i+1] in vowels):
                 freq_count += 1

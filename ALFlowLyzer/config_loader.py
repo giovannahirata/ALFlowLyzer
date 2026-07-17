@@ -2,10 +2,12 @@
 
 import json
 import multiprocessing
+from pathlib import Path
 
 class ConfigLoader:
     def __init__(self, config_file_address: str):
         self.config_file_address = config_file_address
+        self.config_directory = Path(config_file_address).expanduser().resolve().parent
         self.pcap_file_address: str = "./test.pcap"
         self.output_file_address: str = "./"
         self.interface_name: str = "eth0"
@@ -30,6 +32,14 @@ class ConfigLoader:
             with open(self.config_file_address) as config_file:
                 for key, value in json.loads(config_file.read()).items():
                     setattr(self, key, value)
+            self.pcap_file_address = self._resolve_config_path(self.pcap_file_address)
+            self.output_file_address = self._resolve_config_path(self.output_file_address)
         except Exception as error:
             print(f">> Error was detected while reading {self.config_file_address}: {str(error)}. "\
                     "Default values will be applied.")
+
+    def _resolve_config_path(self, path_value: str) -> str:
+        path = Path(path_value).expanduser()
+        if path.is_absolute():
+            return str(path)
+        return str((self.config_directory / path).resolve())
